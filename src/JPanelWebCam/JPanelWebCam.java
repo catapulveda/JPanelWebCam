@@ -38,13 +38,13 @@ public class JPanelWebCam extends JPanel implements MouseListener, WebcamDiscove
     private JComboBox<Webcam> combo;
     private Webcam webcam;
     private boolean ACTIVARCAMARA = true;
-    
+
     private Image image;
-    
+
     public JPanelWebCam() {
-        
+
         addMouseListener(this);
-        
+
         this.setDropTarget(new DropTarget(this, new DropTargetListener() {
             @Override
             public void dragEnter(DropTargetDragEvent dtde) {
@@ -67,21 +67,21 @@ public class JPanelWebCam extends JPanel implements MouseListener, WebcamDiscove
                 try {
                     if (dtde.getDropAction() == 2) {
                         dtde.acceptDrop(dtde.getDropAction());
-                        if (dtde.isDataFlavorSupported(DataFlavor.javaFileListFlavor)){
+                        if (dtde.isDataFlavorSupported(DataFlavor.javaFileListFlavor)) {
                             dtde.acceptDrop(DnDConstants.ACTION_COPY);
-                            List<File> lista = (List<File>)dtde.getTransferable().getTransferData(DataFlavor.javaFileListFlavor);
-                            if(lista.size()==1){                        
+                            List<File> lista = (List<File>) dtde.getTransferable().getTransferData(DataFlavor.javaFileListFlavor);
+                            if (lista.size() == 1) {
                                 setImagen(ImageIO.read(new File(lista.get(0).getAbsolutePath())));
                                 setBorder(javax.swing.BorderFactory.createEtchedBorder());
-                            }else if(lista.size()>1){
+                            } else if (lista.size() > 1) {
                                 JOptionPane.showMessageDialog(null, "SÓLO UNA IMGAEN A LA VEZ.");
                             }
-                        }else{
+                        } else {
                             JOptionPane.showMessageDialog(null, "ÉSTE TIPO DE ARCHIVO NO ES SOPORTADO.");
                         }
                     }
                 } catch (UnsupportedFlavorException | IOException | HeadlessException e) {
-                    JOptionPane.showMessageDialog(null, "ERROR AL IMPORTAR LA IMAGEN\n"+e);
+                    JOptionPane.showMessageDialog(null, "ERROR AL IMPORTAR LA IMAGEN\n" + e);
                 }
             }
         }));
@@ -90,17 +90,17 @@ public class JPanelWebCam extends JPanel implements MouseListener, WebcamDiscove
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
-        if(image!=null){
+        if (image != null) {
             int pw = getWidth();
             int ph = getHeight();
             int iw = image.getWidth(null);
             int ih = image.getHeight(null);
-            
+
             int x = 0;
             int y = 0;
             int w = 0;
             int h = 0;
-            
+
             double s = Math.max((double) iw / pw, (double) ih / ph);
             double niw = iw / s;
             double nih = ih / s;
@@ -110,73 +110,69 @@ public class JPanelWebCam extends JPanel implements MouseListener, WebcamDiscove
             h = (int) nih;
             x = (int) dx;
             y = (int) dy;
-            
-            if(getHeight()>image.getHeight(null)&&getWidth()>image.getWidth(null)){
+
+            if (getHeight() > image.getHeight(null) && getWidth() > image.getWidth(null)) {
                 w = image.getWidth(null);
                 h = image.getHeight(null);
-                x = (w<getWidth())?(getWidth()/2)-(w/2):0;
-                y = (h<getHeight())?(getHeight()/2)-(h/2):0;
+                x = (w < getWidth()) ? (getWidth() / 2) - (w / 2) : 0;
+                y = (h < getHeight()) ? (getHeight() / 2) - (h / 2) : 0;
             }
-            
+
             g.drawImage(image, x, y, w, h, this);
         }
     }
 
-    
-    
     @Override
-    public void mouseClicked(MouseEvent e){
-        
-        if(e.getClickCount()==2 && image != null){
+    public void mouseClicked(MouseEvent e) {
+
+        if (e.getClickCount() == 2 && image != null) {
             try {
                 ImageIO.write((RenderedImage) image, "jpg", new File("temp.jpg"));
                 Desktop.getDesktop().open(new File("temp.jpg"));
             } catch (IOException ex) {
                 Logger.getLogger(JPanelWebCam.class.getName()).log(Level.SEVERE, null, ex);
-            }            
+            }
         }
-        if(isACTIVARCAMARA()){
+        if (isACTIVARCAMARA()) {
             webcam = Webcam.getDefault();
-            if(webcam==null){
+            if (webcam == null) {
                 JOptionPane.showMessageDialog(this, "NO HAY CAMARAS DISPONIBLES", "CAMARA NO ENCONTRADA", JOptionPane.INFORMATION_MESSAGE);
-            }else{
-                if(webcam.isOpen()){
-                    //webcampanel.stop();
-                    webcam.close();
-                }else if (SwingUtilities.isLeftMouseButton(e) && e.getClickCount()==1) {
-                    combo = new JComboBox();
-                    for (Webcam cam : Webcam.getWebcams()) {
-                        combo.addItem(cam);                
-                    }
+            } else if (webcam.isOpen()) {
+                //webcampanel.stop();
+                webcam.close();
+            } else if (SwingUtilities.isLeftMouseButton(e) && e.getClickCount() == 1) {
+                combo = new JComboBox();
+                for (Webcam cam : Webcam.getWebcams()) {
+                    combo.addItem(cam);
+                }
 
-                    JOptionPane opciones = new JOptionPane();
-                    opciones.setMessage(combo);
-                    JDialog dialog = opciones.createDialog("Seleccione una camara");
-                    dialog.setVisible(true);
+                JOptionPane opciones = new JOptionPane();
+                opciones.setMessage(combo);
+                JDialog dialog = opciones.createDialog("Seleccione una camara");
+                dialog.setVisible(true);
 
-                    if(null!=opciones.getValue()){
-                        webcam = combo.getItemAt(combo.getSelectedIndex());
-                        setImagen((new ImageIcon(getClass().getResource("/icons/cargandocamara.gif")).getImage()));                    
-                        Thread t = new Thread() {
-                            @Override
-                            public void run() {
-                                //webcampanel.start();
-                                if(webcam.open()){
-                                    while(webcam.isOpen()){
-                                        setImagen(webcam.getImage());
-                                        repaint();
-                                    }
+                if (null != opciones.getValue()) {
+                    webcam = combo.getItemAt(combo.getSelectedIndex());
+                    setImagen((new ImageIcon(getClass().getResource("/icons/cargandocamara.gif")).getImage()));
+                    Thread t = new Thread() {
+                        @Override
+                        public void run() {
+                            //webcampanel.start();
+                            if (webcam.open()) {
+                                while (webcam.isOpen()) {
+                                    setImagen(webcam.getImage());
+                                    repaint();
                                 }
                             }
-                        };
-                        t.setName("Iniciando camara");
-                        t.setDaemon(true);
-                        t.start();
-                    }
+                        }
+                    };
+                    t.setName("Iniciando camara");
+                    t.setDaemon(true);
+                    t.start();
                 }
             }
-        }        
-        
+        }
+
     }
 
     @Override
@@ -201,12 +197,12 @@ public class JPanelWebCam extends JPanel implements MouseListener, WebcamDiscove
 
     @Override
     public void webcamFound(WebcamDiscoveryEvent wde) {
-        
+
     }
 
     @Override
     public void webcamGone(WebcamDiscoveryEvent wde) {
-        
+
     }
 
     public Image getImage() {
@@ -217,25 +213,25 @@ public class JPanelWebCam extends JPanel implements MouseListener, WebcamDiscove
         this.image = image;
         repaint();
     }
-    
+
     public void setImagen(byte[] imagenBytes) {
         try {
-            if(imagenBytes!=null){
+            if (imagenBytes != null) {
                 this.image = ImageIO.read(new ByteArrayInputStream(imagenBytes));
                 repaint();
-            }            
-        } catch (IOException ex){
+            }
+        } catch (IOException ex) {
             Logger.getLogger(JPanelWebCam.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-    
-    public byte[] getBytes(){
+
+    public byte[] getBytes() {
         try {
-            ByteArrayOutputStream os =  new  ByteArrayOutputStream ();
-            if(image!=null){                
-                ImageIO.write((RenderedImage) image,  "jpg" , os);
+            ByteArrayOutputStream os = new ByteArrayOutputStream();
+            if (image != null) {
+                ImageIO.write((RenderedImage) image, "jpg", os);
                 os.flush();
-            }            
+            }
             return os.toByteArray();
         } catch (IOException ex) {
             Logger.getLogger(JPanelWebCam.class.getName()).log(Level.SEVERE, null, ex);
