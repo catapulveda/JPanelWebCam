@@ -3,6 +3,7 @@ package JPanelWebCam;
 import com.github.sarxos.webcam.Webcam;
 import com.github.sarxos.webcam.WebcamDiscoveryEvent;
 import com.github.sarxos.webcam.WebcamDiscoveryListener;
+import java.awt.Desktop;
 import java.awt.Graphics;
 import java.awt.HeadlessException;
 import java.awt.Image;
@@ -35,7 +36,8 @@ import javax.swing.SwingUtilities;
 public class JPanelWebCam extends JPanel implements MouseListener, WebcamDiscoveryListener {
 
     private JComboBox<Webcam> combo;
-    private Webcam webcam = Webcam.getDefault();
+    private Webcam webcam;
+    private boolean ACTIVARCAMARA = true;
     
     private Image image;
     
@@ -125,44 +127,55 @@ public class JPanelWebCam extends JPanel implements MouseListener, WebcamDiscove
     @Override
     public void mouseClicked(MouseEvent e){
         
-        if(webcam==null){
-            JOptionPane.showMessageDialog(this, "NO HAY CAMARAS DISPONIBLES", "CAMARA NO ENCONTRADA", JOptionPane.INFORMATION_MESSAGE);
-        }else{
-            if(webcam.isOpen()){
-                //webcampanel.stop();
-                webcam.close();
-            }else if (SwingUtilities.isLeftMouseButton(e) && e.getClickCount()==1) {
-                combo = new JComboBox();
-                for (Webcam cam : Webcam.getWebcams()) {
-                    combo.addItem(cam);                
-                }
+        if(e.getClickCount()==2 && image != null){
+            try {
+                ImageIO.write((RenderedImage) image, "jpg", new File("temp.jpg"));
+                Desktop.getDesktop().open(new File("temp.jpg"));
+            } catch (IOException ex) {
+                Logger.getLogger(JPanelWebCam.class.getName()).log(Level.SEVERE, null, ex);
+            }            
+        }
+        if(isACTIVARCAMARA()){
+            webcam = Webcam.getDefault();
+            if(webcam==null){
+                JOptionPane.showMessageDialog(this, "NO HAY CAMARAS DISPONIBLES", "CAMARA NO ENCONTRADA", JOptionPane.INFORMATION_MESSAGE);
+            }else{
+                if(webcam.isOpen()){
+                    //webcampanel.stop();
+                    webcam.close();
+                }else if (SwingUtilities.isLeftMouseButton(e) && e.getClickCount()==1) {
+                    combo = new JComboBox();
+                    for (Webcam cam : Webcam.getWebcams()) {
+                        combo.addItem(cam);                
+                    }
 
-                JOptionPane opciones = new JOptionPane();
-                opciones.setMessage(combo);
-                JDialog dialog = opciones.createDialog("Seleccione una camara");
-                dialog.setVisible(true);
+                    JOptionPane opciones = new JOptionPane();
+                    opciones.setMessage(combo);
+                    JDialog dialog = opciones.createDialog("Seleccione una camara");
+                    dialog.setVisible(true);
 
-                if(null!=opciones.getValue()){
-                    webcam = combo.getItemAt(combo.getSelectedIndex());
-                    setImagen((new ImageIcon(getClass().getResource("/icons/cargandocamara.gif")).getImage()));                    
-                    Thread t = new Thread() {
-                        @Override
-                        public void run() {
-                            //webcampanel.start();
-                            if(webcam.open()){
-                                while(webcam.isOpen()){
-                                    setImagen(webcam.getImage());
-                                    repaint();
+                    if(null!=opciones.getValue()){
+                        webcam = combo.getItemAt(combo.getSelectedIndex());
+                        setImagen((new ImageIcon(getClass().getResource("/icons/cargandocamara.gif")).getImage()));                    
+                        Thread t = new Thread() {
+                            @Override
+                            public void run() {
+                                //webcampanel.start();
+                                if(webcam.open()){
+                                    while(webcam.isOpen()){
+                                        setImagen(webcam.getImage());
+                                        repaint();
+                                    }
                                 }
                             }
-                        }
-                    };
-                    t.setName("Iniciando camara");
-                    t.setDaemon(true);
-                    t.start();
+                        };
+                        t.setName("Iniciando camara");
+                        t.setDaemon(true);
+                        t.start();
+                    }
                 }
             }
-        }
+        }        
         
     }
 
@@ -228,5 +241,13 @@ public class JPanelWebCam extends JPanel implements MouseListener, WebcamDiscove
             Logger.getLogger(JPanelWebCam.class.getName()).log(Level.SEVERE, null, ex);
         }
         return null;
+    }
+
+    public boolean isACTIVARCAMARA() {
+        return ACTIVARCAMARA;
+    }
+
+    public void setACTIVARCAMARA(boolean ACTIVARCAMARA) {
+        this.ACTIVARCAMARA = ACTIVARCAMARA;
     }
 }
