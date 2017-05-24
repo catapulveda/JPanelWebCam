@@ -3,10 +3,14 @@ package JPanelWebCam;
 import com.github.sarxos.webcam.Webcam;
 import com.github.sarxos.webcam.WebcamDiscoveryEvent;
 import com.github.sarxos.webcam.WebcamDiscoveryListener;
+import java.awt.Color;
 import java.awt.Desktop;
+import java.awt.GradientPaint;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.HeadlessException;
 import java.awt.Image;
+import java.awt.RenderingHints;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.dnd.DnDConstants;
@@ -37,12 +41,13 @@ public class JPanelWebCam extends JPanel implements MouseListener, WebcamDiscove
 
     private JComboBox<Webcam> combo;
     private Webcam webcam;
-    private boolean ACTIVARCAMARA = true;
-
+    private boolean ACTIVARCAMARA = true, FONDO = false;
+    private float y2;
+    private Color color1 = Color.WHITE, color2 = Color.blue;
     private Image image;
 
     public JPanelWebCam() {
-
+        this.y2 = getHeight();
         addMouseListener(this);
 
         this.setDropTarget(new DropTarget(this, new DropTargetListener() {
@@ -90,6 +95,17 @@ public class JPanelWebCam extends JPanel implements MouseListener, WebcamDiscove
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
+
+        if (this.FONDO) {
+            Graphics2D g2d = (Graphics2D) g;
+            g2d.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+
+            GradientPaint gp = new GradientPaint(0.0F, 0.0F, this.color1, 0.0F, this.y2, color2);
+
+            g2d.setPaint(gp);
+            g2d.fillRect(0, 0, getWidth(), getHeight());
+        }
+
         if (image != null) {
             int pw = getWidth();
             int ph = getHeight();
