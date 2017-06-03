@@ -21,6 +21,7 @@ import java.awt.dnd.DropTargetEvent;
 import java.awt.dnd.DropTargetListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.awt.image.BufferedImage;
 import java.awt.image.RenderedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -229,6 +230,15 @@ public class JPanelWebCam extends JPanel implements MouseListener, WebcamDiscove
         this.image = image;
         repaint();
     }
+    
+    public void setImagen(String image) {
+        try {
+            this.image = ImageIO.read(getClass().getResource(image));
+        } catch (IOException ex) {
+            JOptionPane.showMessageDialog(null, "NO SE PUDO CARGAR LA IMAGEN\n"+ex);
+        }
+        repaint();
+    }
 
     public void setImagen(byte[] imagenBytes) {
         try {
@@ -244,6 +254,7 @@ public class JPanelWebCam extends JPanel implements MouseListener, WebcamDiscove
     public byte[] getBytes() {
         try {
             ByteArrayOutputStream os = new ByteArrayOutputStream();
+            if(image instanceof Image)
             if (image != null) {
                 ImageIO.write((RenderedImage) image, "jpg", os);
                 os.flush();
@@ -261,5 +272,21 @@ public class JPanelWebCam extends JPanel implements MouseListener, WebcamDiscove
 
     public void setACTIVARCAMARA(boolean ACTIVARCAMARA) {
         this.ACTIVARCAMARA = ACTIVARCAMARA;
+    }
+
+    public void setFONDO(boolean FONDO) {
+        this.FONDO = FONDO;
+    }
+
+    public void setY2(float y2) {
+        this.y2 = y2;
+    }
+
+    public void setColor1(Color color1) {
+        this.color1 = color1;
+    }
+
+    public void setColor2(Color color2) {
+        this.color2 = color2;
     }
 }
