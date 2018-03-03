@@ -78,6 +78,10 @@
         <property name="store.jar" value="${store.dir}/${store.jar.name}.jar"/>
 
         <echo message="Empaquetando ${application.title} dentro de un solo .JAR en la ruta ${store.jar}"/>
+        
+        <echo message="AAAA ${store.dir}"/>
+        <echo message="AAAA ${store.jar}"/>
+        <echo message="AAAA ${store.jar.name}"/>
 
         <jar destfile="${store.dir}/temp_final.jar" filesetmanifest="skip">
             <zipgroupfileset dir="dist" includes="*.jar"/>

@@ -240,19 +240,29 @@ public class JPanelWebCam extends JPanel implements MouseListener, WebcamDiscove
             Logger.getLogger(JPanelWebCam.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-
-    public byte[] getBytes() {
+    
+    public void setImagenNull(){
         try {
-            ByteArrayOutputStream os = new ByteArrayOutputStream();
-            if (image != null) {
-                ImageIO.write((RenderedImage) image, "jpg", os);
-                os.flush();
-            }
-            return os.toByteArray();
+            this.image = ImageIO.read(new ByteArrayInputStream(new byte[]{0}));
         } catch (IOException ex) {
             Logger.getLogger(JPanelWebCam.class.getName()).log(Level.SEVERE, null, ex);
         }
-        return null;
+    }
+
+    public byte[] getBytes() {
+        byte[] bs = {0};
+        ByteArrayOutputStream os = new ByteArrayOutputStream();
+        try {            
+            if (image != null) {
+                ImageIO.write((RenderedImage) image, "jpg", os);
+                os.flush();
+            }else{
+                os.write(bs);
+            }
+        } catch (IOException ex) {
+            Logger.getLogger(JPanelWebCam.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return os.toByteArray();
     }
 
     public boolean isACTIVARCAMARA() {
